@@ -54,6 +54,12 @@ denpa との口 (Linux 版とまったく同じ):
 > エージェントも **x86** でないと `LoadLibrary` が弾かれる。64bit の BonDriver なら x64。
 > `aribb25.dll` も同じビット幅で揃える。
 
+## 入手
+
+[Releases](https://github.com/danything/denpa-agent-windows/releases) に、タグを切るたび
+Windows でビルドした zip が付く (`denpa-agent-win-x64.zip` / `-x86.zip`)。使う BonDriver の
+ビット幅に合うほうを解けば、`denpa-agent.exe` と設定例が入っている。自分でビルドするなら下記。
+
 ## ビルド
 
 Windows + [.NET 10 SDK](https://dotnet.microsoft.com/) で:

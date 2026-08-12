@@ -1,0 +1,64 @@
+name: release
+
+# リリースを発行 (`gh release create vX.Y.Z`) すると、Windows で exe を作って
+# リリースに添付する。ビルドは Windows でしかできない (Native AOT・Win32・
+# BonDriver・WinSCard)。x64 は AOT の単一 exe、32bit の BonDriver を使う人向けの
+# x86 は AOT 非対応なので self-contained 単一ファイルで別に作る。README 参照。
+
+on:
+  release:
+    types: [published]
+  # 手で作り直したいとき用 (タグを渡す)
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 添付先のリリースタグ (例 v0.1.0)
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: Denpa.Agent.Windows
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Publish x64 (Native AOT, 単一 exe)
+        run: dotnet publish -c Release -r win-x64 -o ../publish/x64
+
+      - name: Publish x86 (self-contained 単一ファイル。32bit BonDriver 向け)
+        run: >
+          dotnet publish -c Release -r win-x86 -o ../publish/x86
+          -p:PublishAot=false -p:PublishSingleFile=true -p:SelfContained=true
+
+      # 例の設定を同梱して、解いたらすぐ動かせる形にする
+      - name: Bundle
+        shell: pwsh
+        working-directory: .
+        run: |
+          $extras = @(
+            'Denpa.Agent.Windows/bondriver-map.example.json',
+            'Denpa.Agent.Windows/tuners.example.json',
+            'README.md'
+          )
+          foreach ($arch in 'x64','x86') {
+            Copy-Item $extras "publish/$arch/"
+            Compress-Archive -Path "publish/$arch/*" `
+              -DestinationPath "denpa-agent-win-$arch.zip" -Force
+          }
+
+      - name: Attach to release
+        shell: pwsh
+        working-directory: .
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.release.tag_name || inputs.tag }}
+        run: gh release upload "$env:TAG" denpa-agent-win-x64.zip denpa-agent-win-x86.zip --clobber
