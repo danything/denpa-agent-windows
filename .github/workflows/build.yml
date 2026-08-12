@@ -17,9 +17,9 @@ jobs:
       run:
         working-directory: Denpa.Agent.Windows
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '10.0.x'
 
@@ -37,7 +37,7 @@ jobs:
           dotnet publish -c Release -r win-x86 -o ../publish/x86
           -p:PublishAot=false -p:PublishSingleFile=true -p:SelfContained=true
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: denpa-agent
           path: publish/
