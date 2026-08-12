@@ -1,0 +1,16 @@
+{
+  "tuners": [
+    {
+      "name": "地上波0",
+      "types": ["GR"],
+      "disabled": false,
+      "device": "C:\\BonDriver\\BonDriver_PX4-T.dll"
+    },
+    {
+      "name": "衛星0",
+      "types": ["BS", "CS"],
+      "disabled": false,
+      "device": "C:\\BonDriver\\BonDriver_PX4-S.dll"
+    }
+  ]
+}

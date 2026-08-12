@@ -1,0 +1,43 @@
+name: build
+
+# Windows でしか作れない (Native AOT・Win32・BonDriver・WinSCard)。
+# win-x64 は AOT で単一 exe。32bit の BonDriver を使う人向けの x86 は
+# AOT 非対応なので、単一ファイル (self-contained) で別に作る。README 参照。
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: Denpa.Agent.Windows
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build (compile check)
+        run: dotnet build -c Release --no-restore
+
+      - name: Publish x64 (Native AOT, 単一 exe)
+        run: dotnet publish -c Release -r win-x64 -o ../publish/x64
+
+      - name: Publish x86 (self-contained 単一ファイル。32bit BonDriver 向け)
+        run: >
+          dotnet publish -c Release -r win-x86 -o ../publish/x86
+          -p:PublishAot=false -p:PublishSingleFile=true -p:SelfContained=true
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: denpa-agent
+          path: publish/

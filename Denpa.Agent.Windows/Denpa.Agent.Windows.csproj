@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <!--
+        denpa の Windows 向けチューナーエージェント。
+
+        **Native AOT・依存ゼロ・単一 exe** は Linux 版と揃える。別 PC (録画機) へ
+        置くときに「まず何かを入れてください」が要らないのが条件。YAML/JSON も
+        自前で読む (AOT では反射が素直に動かないため)。
+
+        **ビット幅の注意。** 多くの BonDriver は 32bit (x86) なので、その DLL を
+        読むエージェントも x86 でないと LoadLibrary が弾かれる。64bit の BonDriver を
+        使うなら win-x64。README 参照。
+    -->
+    <PropertyGroup>
+        <TargetFramework>net10.0-windows10.0.17763.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <PublishAot>true</PublishAot>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <InvariantGlobalization>true</InvariantGlobalization>
+        <AssemblyName>denpa-agent</AssemblyName>
+        <RootNamespace>Denpa.Agent</RootNamespace>
+        <!-- Linux 上でも Windows 向けにビルドできるようにする (実機/ CI は windows-latest) -->
+        <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    </PropertyGroup>
+
+</Project>
